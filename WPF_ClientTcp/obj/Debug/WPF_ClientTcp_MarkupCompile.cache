@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\Ahme_cn21\source\repos\WPF_ClientTcp\WPF_ClientTcp\obj\Debug\
+C:\Users\eliah\Source\Repos\WPF-ClientTcp\WPF_ClientTcp\obj\Debug\
 WPF_ClientTcp
 none
 false
 DEBUG;TRACE
-C:\Users\Ahme_cn21\source\repos\WPF_ClientTcp\WPF_ClientTcp\App.xaml
-1219584333
+C:\Users\eliah\Source\Repos\WPF-ClientTcp\WPF_ClientTcp\App.xaml
+2768571872
 
-51579654133
+10-1882809585
 13-1310406943
-MainWindow.xaml;
+Views\MainWindow.xaml;Views\MessageUC.xaml;
 
 False
 

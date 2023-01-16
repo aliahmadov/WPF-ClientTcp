@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WPF_ClientTcp
+namespace WPF_ClientTcp.Views
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for MessageUC.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MessageUC : UserControl
     {
-        public MainWindow()
+        public MessageUC()
         {
             InitializeComponent();
         }
