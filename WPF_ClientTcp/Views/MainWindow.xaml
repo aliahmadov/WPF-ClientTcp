@@ -14,7 +14,7 @@
 
         <Grid Grid.Column="1">
             <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Button Content="Connect" Padding="20,5,20,5" Background="Green"
+                <Button Content="{Binding ConnectContent}" Padding="20,5,20,5" Background="Green"
                         Foreground="White" FontWeight="Bold" FontSize="25" Command="{Binding ConnectCommand}">
                     <Button.Resources>
                         <Style TargetType="Border">

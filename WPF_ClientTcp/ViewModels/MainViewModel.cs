@@ -41,6 +41,18 @@ namespace WPF_ClientTcp.ViewModels
 
         public BinaryWriter BinaryWriter { get; set; }
 
+        public bool IsConnected { get; set; }
+
+
+        private string connectContent;
+
+        public string ConnectContent
+        {
+            get { return connectContent; }
+            set { connectContent = value; OnPropertyChanged(); }
+        }
+
+
         #endregion
 
         ///---------------------------------------------------------------
@@ -58,27 +70,35 @@ namespace WPF_ClientTcp.ViewModels
 
         public MainViewModel()
         {
+            ConnectContent = "Connect";
             TcpClient = new TcpClient();
             var ip = IPAddress.Parse(IPService.GetLocalIPAddress());
             var port = 27001;
             var endPoint = new IPEndPoint(ip, port);
 
-            ConnectCommand = new RelayCommand(c =>
+            ConnectCommand = new RelayCommand((c) =>
             {
-                try
+                Task.Run(() =>
                 {
-                    TcpClient.Connect(endPoint);
-                    var stream = TcpClient.GetStream();
-                    BinaryWriter = new BinaryWriter(stream);
-                    BinaryWriter.Write(ClientName);
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("Could not connect");
-                }
+                    try
+                    {
+                        TcpClient.Connect(endPoint);
+                        var stream = TcpClient.GetStream();
+                        BinaryWriter = new BinaryWriter(stream);
+                        BinaryWriter.Write(ClientName);
+                        ClientName = "";
+                        IsConnected = true;
+                        ConnectContent = "Connected";
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show("Could not connect");
+                        ClientName = "";
+                    }
+                });
             }, (a) =>
             {
-                if(ClientName != null)
+                if (ClientName != null)
                 {
                     if (ClientName.Length != 0)
                     {
@@ -86,6 +106,10 @@ namespace WPF_ClientTcp.ViewModels
                     }
                     else return false;
                     return true;
+                }
+                if (IsConnected)
+                {
+                    return false;
                 }
                 return false;
             });
