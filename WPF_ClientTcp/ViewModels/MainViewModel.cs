@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -25,6 +26,21 @@ namespace WPF_ClientTcp.ViewModels
             get { return clientMessage; }
             set { clientMessage = value; OnPropertyChanged(); }
         }
+
+
+        private string clientName;
+
+        public string ClientName
+        {
+            get { return clientName; }
+            set { clientName = value; OnPropertyChanged(); }
+        }
+
+
+        public BinaryReader BinaryReader { get; set; }
+
+        public BinaryWriter BinaryWriter { get; set; }
+
         #endregion
 
         ///---------------------------------------------------------------
@@ -36,7 +52,7 @@ namespace WPF_ClientTcp.ViewModels
         #endregion
 
 
-        
+
 
 
 
@@ -52,18 +68,32 @@ namespace WPF_ClientTcp.ViewModels
                 try
                 {
                     TcpClient.Connect(endPoint);
-                    
+                    var stream = TcpClient.GetStream();
+                    BinaryWriter = new BinaryWriter(stream);
+                    BinaryWriter.Write(ClientName);
                 }
                 catch (Exception)
                 {
                     MessageBox.Show("Could not connect");
                 }
+            }, (a) =>
+            {
+                if(ClientName != null)
+                {
+                    if (ClientName.Length != 0)
+                    {
+                        return true;
+                    }
+                    else return false;
+                    return true;
+                }
+                return false;
             });
 
 
             SendCommand = new RelayCommand(c =>
             {
-                if(TcpClient.Connected)
+                if (TcpClient.Connected)
                 {
 
                 }

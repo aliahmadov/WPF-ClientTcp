@@ -26,7 +26,8 @@
             </StackPanel>
             <StackPanel VerticalAlignment="Bottom" Margin="10,0,10,10">
                 <TextBlock FontWeight="DemiBold">Type name to connect</TextBlock>
-                <TextBox Margin="0,5,0,0" FontSize="20" MaxLength="30" TextWrapping="Wrap">
+                <TextBox Margin="0,5,0,0" FontSize="20" MaxLength="30" TextWrapping="Wrap"
+                         Text="{Binding ClientName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
