@@ -7,8 +7,10 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using WPF_ClientTcp.Commands;
 using WPF_ClientTcp.Services.NetworkService;
+using WPF_ClientTcp.Views;
 
 namespace WPF_ClientTcp.ViewModels
 {
@@ -52,6 +54,7 @@ namespace WPF_ClientTcp.ViewModels
             set { connectContent = value; OnPropertyChanged(); }
         }
 
+        public StackPanel MessagePanel { get; set; }
 
         #endregion
 
@@ -60,10 +63,10 @@ namespace WPF_ClientTcp.ViewModels
         #region Commands
         public RelayCommand ConnectCommand { get; set; }
         public RelayCommand SendCommand { get; set; }
+        public RelayCommand DisconnectCommand { get; set; }
+
 
         #endregion
-
-
 
 
 
@@ -92,7 +95,7 @@ namespace WPF_ClientTcp.ViewModels
                     }
                     catch (Exception)
                     {
-                        MessageBox.Show("Could not connect");
+                        MessageBox.Show("You are already connected or connection was not sucessfull");
                         ClientName = "";
                     }
                 });
@@ -104,22 +107,64 @@ namespace WPF_ClientTcp.ViewModels
                     {
                         return true;
                     }
-                    else return false;
-                    return true;
-                }
-                if (IsConnected)
-                {
                     return false;
                 }
                 return false;
             });
 
 
+
             SendCommand = new RelayCommand(c =>
             {
                 if (TcpClient.Connected)
                 {
+                    var writer = Task.Run(() =>
+                    {
+                        while (true)
+                        {
 
+                            App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+                            {
+                                var stream = TcpClient.GetStream();
+                                BinaryWriter = new BinaryWriter(stream);
+                                BinaryWriter.Write(ClientMessage);
+
+                                var view = new MessageUC();
+                                var viewModel = new MessageViewModel();
+                                view.DataContext = viewModel;
+                                viewModel.ClientMessage = ClientMessage;
+
+
+                                view.HorizontalAlignment = HorizontalAlignment.Right;
+                                MessagePanel.Children.Add(view);
+
+                                
+                            });
+
+                        }
+                    });
+
+
+                    var reader = Task.Run(() =>
+                    {
+                        while (true)
+                        {
+                            App.Current.Dispatcher.Invoke((Action)delegate
+                            {
+                                var view = new MessageUC();
+                                var viewModel = new MessageViewModel();
+                                view.DataContext = viewModel;
+
+                                var stream = TcpClient.GetStream();
+                                BinaryReader = new BinaryReader(stream);
+                                viewModel.ClientMessage = BinaryReader.ReadString();
+
+                                view.HorizontalAlignment = HorizontalAlignment.Left;
+                                MessagePanel.Children.Add(view);
+                            });
+                        }
+                    });
+                    Task.WaitAll(writer, reader);
                 }
             });
         }

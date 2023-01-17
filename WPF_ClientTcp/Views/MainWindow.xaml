@@ -22,7 +22,6 @@
                         </Style>
                     </Button.Resources>
                 </Button>
-
             </StackPanel>
             <StackPanel VerticalAlignment="Bottom" Margin="10,0,10,10">
                 <TextBlock FontWeight="DemiBold">Type name to connect</TextBlock>
@@ -45,7 +44,7 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <StackPanel>
+            <StackPanel Name="messagePanel" CanVerticallyScroll="True">
 
             </StackPanel>
 
@@ -75,7 +74,8 @@
                 </TextBox>
 
                 <StackPanel Grid.Column="2" VerticalAlignment="Center" Orientation="Horizontal">
-                    <Button Margin="0" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" Grid.Column="2">
+                    <Button Margin="0" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" Grid.Column="2"
+                            Command="{Binding SendCommand}">
                         <Image Width="30" RenderOptions.BitmapScalingMode="HighQuality" Source="/Images/send.png"></Image>
                     </Button>
 

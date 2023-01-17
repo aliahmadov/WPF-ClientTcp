@@ -56,6 +56,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Services\NetworkService\IPService.cs" />
+    <Compile Include="ViewModels\MessageViewModel.cs" />
     <Compile Include="Views\MessageUC.xaml.cs">
       <DependentUpon>MessageUC.xaml</DependentUpon>
     </Compile>

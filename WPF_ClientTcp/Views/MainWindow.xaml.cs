@@ -25,6 +25,7 @@ namespace WPF_ClientTcp
         {
             InitializeComponent();
             var viewModel = new MainViewModel();
+            viewModel.MessagePanel = this.messagePanel;
             this.DataContext = viewModel;
         }
     }
