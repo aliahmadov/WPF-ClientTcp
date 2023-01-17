@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using WPF_ClientTcp.Commands;
 using WPF_ClientTcp.Services.NetworkService;
 using WPF_ClientTcp.Views;
@@ -68,6 +69,48 @@ namespace WPF_ClientTcp.ViewModels
 
         #endregion
 
+        public DispatcherTimer messageReceiverTimer { get; set; }
+
+
+
+
+        public async void ReceiveMessage()
+        {
+            await Task.Run(() =>
+            {
+                App.Current.Dispatcher.Invoke((Action)delegate
+                {
+                    var view = new MessageUC();
+                    var viewModel = new MessageViewModel();
+                    view.DataContext = viewModel;
+
+                    var stream = TcpClient.GetStream();
+                    BinaryReader = new BinaryReader(stream);
+
+
+                    App.Current.Dispatcher.Invoke((Action)async delegate
+                    {
+                        await Task.Run(() =>
+                        {
+                            viewModel.ClientMessage = BinaryReader.ReadString();
+
+                        });
+                        if (viewModel.ClientMessage != null)
+                        {
+                            App.Current.Dispatcher.Invoke((Action)async delegate
+                            {
+                                view.HorizontalAlignment = HorizontalAlignment.Left;
+                                MessagePanel.Children.Add(view);
+                            });
+
+                        }
+
+                    });
+
+
+                });
+            });
+        }
 
 
 
@@ -79,6 +122,9 @@ namespace WPF_ClientTcp.ViewModels
             var port = 27001;
             var endPoint = new IPEndPoint(ip, port);
 
+            messageReceiverTimer = new DispatcherTimer();
+            messageReceiverTimer.Interval = TimeSpan.FromSeconds(7);
+            messageReceiverTimer.Tick += MessageReceiverTimer_Tick;
             ConnectCommand = new RelayCommand((c) =>
             {
                 Task.Run(() =>
@@ -92,6 +138,8 @@ namespace WPF_ClientTcp.ViewModels
                         ClientName = "";
                         IsConnected = true;
                         ConnectContent = "Connected";
+
+                        messageReceiverTimer.Start();
                     }
                     catch (Exception)
                     {
@@ -114,59 +162,37 @@ namespace WPF_ClientTcp.ViewModels
 
 
 
-            SendCommand = new RelayCommand(c =>
+            SendCommand = new RelayCommand((c) =>
             {
                 if (TcpClient.Connected)
                 {
-                    var writer = Task.Run(() =>
+
+                    App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
                     {
-                        while (true)
-                        {
+                        var stream = TcpClient.GetStream();
+                        BinaryWriter = new BinaryWriter(stream);
+                        BinaryWriter.Write(ClientMessage);
 
-                            App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
-                            {
-                                var stream = TcpClient.GetStream();
-                                BinaryWriter = new BinaryWriter(stream);
-                                BinaryWriter.Write(ClientMessage);
-
-                                var view = new MessageUC();
-                                var viewModel = new MessageViewModel();
-                                view.DataContext = viewModel;
-                                viewModel.ClientMessage = ClientMessage;
+                        var view = new MessageUC();
+                        var viewModel = new MessageViewModel();
+                        view.DataContext = viewModel;
+                        viewModel.ClientMessage = ClientMessage;
 
 
-                                view.HorizontalAlignment = HorizontalAlignment.Right;
-                                MessagePanel.Children.Add(view);
-
-                                
-                            });
-
-                        }
+                        view.HorizontalAlignment = HorizontalAlignment.Right;
+                        MessagePanel.Children.Add(view);
+                        ClientMessage = "";
                     });
 
 
-                    var reader = Task.Run(() =>
-                    {
-                        while (true)
-                        {
-                            App.Current.Dispatcher.Invoke((Action)delegate
-                            {
-                                var view = new MessageUC();
-                                var viewModel = new MessageViewModel();
-                                view.DataContext = viewModel;
 
-                                var stream = TcpClient.GetStream();
-                                BinaryReader = new BinaryReader(stream);
-                                viewModel.ClientMessage = BinaryReader.ReadString();
-
-                                view.HorizontalAlignment = HorizontalAlignment.Left;
-                                MessagePanel.Children.Add(view);
-                            });
-                        }
-                    });
-                    Task.WaitAll(writer, reader);
                 }
             });
+        }
+
+        private void MessageReceiverTimer_Tick(object sender, EventArgs e)
+        {
+            ReceiveMessage();
         }
     }
 }
