@@ -84,29 +84,38 @@ namespace WPF_ClientTcp.ViewModels
                     var viewModel = new MessageViewModel();
                     view.DataContext = viewModel;
 
-                    var stream = TcpClient.GetStream();
-                    BinaryReader = new BinaryReader(stream);
-
-
-                    App.Current.Dispatcher.Invoke((Action)async delegate
+                    try
                     {
-                        await Task.Run(() =>
-                        {
-                            viewModel.ClientMessage = BinaryReader.ReadString();
 
-                        });
-                        if (viewModel.ClientMessage != null)
+                        var stream = TcpClient.GetStream();
+                        BinaryReader = new BinaryReader(stream);
+
+
+                        App.Current.Dispatcher.Invoke((Action)async delegate
                         {
-                            App.Current.Dispatcher.Invoke((Action)async delegate
+                            await Task.Run(() =>
                             {
-                                view.HorizontalAlignment = HorizontalAlignment.Left;
-                                MessagePanel.Children.Add(view);
+
+                                viewModel.ClientMessage = BinaryReader.ReadString();
+
+                                App.Current.Dispatcher.Invoke((Action)async delegate
+                                {
+                                    view.HorizontalAlignment = HorizontalAlignment.Left;
+                                    MessagePanel.Children.Add(view);
+                                });
+
+
+
                             });
 
-                        }
+                        });
 
-                    });
+                    }
+                    catch (Exception)
+                    {
 
+                        throw;
+                    }
 
                 });
             });
