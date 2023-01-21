@@ -76,37 +76,49 @@ namespace WPF_ClientTcp.ViewModels
 
         public async void ReceiveMessage()
         {
+            messageReceiverTimer.Stop();
             await Task.Run(() =>
             {
                 App.Current.Dispatcher.Invoke((Action)delegate
                 {
-                    var view = new MessageUC();
-                    var viewModel = new MessageViewModel();
-                    view.DataContext = viewModel;
 
                     try
                     {
-
                         var stream = TcpClient.GetStream();
                         BinaryReader = new BinaryReader(stream);
 
 
                         App.Current.Dispatcher.Invoke((Action)async delegate
                         {
-                            await Task.Run(() =>
+                            while (true)
                             {
+                                var view = new MessageUC();
+                                var viewModel = new MessageViewModel();
+                                view.DataContext = viewModel;
 
-                                viewModel.ClientMessage = BinaryReader.ReadString();
-
-                                App.Current.Dispatcher.Invoke((Action)async delegate
+                                await Task.Run(() =>
                                 {
-                                    view.HorizontalAlignment = HorizontalAlignment.Left;
-                                    MessagePanel.Children.Add(view);
+
+                                    try
+                                    {
+                                        viewModel.ClientMessage = BinaryReader.ReadString();
+
+                                        App.Current.Dispatcher.Invoke((Action)delegate
+                                        {
+                                            view.HorizontalAlignment = HorizontalAlignment.Left;
+                                            MessagePanel.Children.Add(view);
+                                        });
+
+                                    }
+                                    catch (Exception)
+                                    {
+
+                                        
+                                    }
+
+
                                 });
-
-
-
-                            });
+                            }
 
                         });
 
@@ -132,7 +144,7 @@ namespace WPF_ClientTcp.ViewModels
             var endPoint = new IPEndPoint(ip, port);
 
             messageReceiverTimer = new DispatcherTimer();
-            messageReceiverTimer.Interval = TimeSpan.FromSeconds(7);
+            messageReceiverTimer.Interval = TimeSpan.FromSeconds(3);
             messageReceiverTimer.Tick += MessageReceiverTimer_Tick;
             ConnectCommand = new RelayCommand((c) =>
             {
@@ -148,7 +160,7 @@ namespace WPF_ClientTcp.ViewModels
                         IsConnected = true;
                         ConnectContent = "Connected";
 
-                        messageReceiverTimer.Start();
+                        //messageReceiverTimer.Start();
                     }
                     catch (Exception)
                     {
@@ -156,6 +168,7 @@ namespace WPF_ClientTcp.ViewModels
                         ClientName = "";
                     }
                 });
+                ReceiveMessage();
             }, (a) =>
             {
                 if (ClientName != null)
@@ -201,7 +214,7 @@ namespace WPF_ClientTcp.ViewModels
 
         private void MessageReceiverTimer_Tick(object sender, EventArgs e)
         {
-            ReceiveMessage();
+            //ReceiveMessage();
         }
     }
 }
