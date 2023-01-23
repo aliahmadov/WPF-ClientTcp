@@ -160,7 +160,7 @@ namespace WPF_ClientTcp.ViewModels
                         IsConnected = true;
                         ConnectContent = "Connected";
 
-                        //messageReceiverTimer.Start();
+                        messageReceiverTimer.Start();
                     }
                     catch (Exception)
                     {
@@ -168,7 +168,6 @@ namespace WPF_ClientTcp.ViewModels
                         ClientName = "";
                     }
                 });
-                ReceiveMessage();
             }, (a) =>
             {
                 if (ClientName != null)
@@ -214,7 +213,7 @@ namespace WPF_ClientTcp.ViewModels
 
         private void MessageReceiverTimer_Tick(object sender, EventArgs e)
         {
-            //ReceiveMessage();
+            ReceiveMessage();
         }
     }
 }
