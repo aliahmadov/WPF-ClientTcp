@@ -40,6 +40,15 @@ namespace WPF_ClientTcp.ViewModels
         }
 
 
+        private string displayName;
+
+        public string DisplayName
+        {
+            get { return displayName; }
+            set { displayName = value; OnPropertyChanged(); }
+        }
+
+
         public BinaryReader BinaryReader { get; set; }
 
         public BinaryWriter BinaryWriter { get; set; }
@@ -113,7 +122,7 @@ namespace WPF_ClientTcp.ViewModels
                                     catch (Exception)
                                     {
 
-                                        
+
                                     }
 
 
@@ -156,6 +165,7 @@ namespace WPF_ClientTcp.ViewModels
                         var stream = TcpClient.GetStream();
                         BinaryWriter = new BinaryWriter(stream);
                         BinaryWriter.Write(ClientName);
+                        DisplayName = ClientName;
                         ClientName = "";
                         IsConnected = true;
                         ConnectContent = "Connected";
@@ -170,14 +180,20 @@ namespace WPF_ClientTcp.ViewModels
                 });
             }, (a) =>
             {
-                if (ClientName != null)
+                if (!IsConnected)
                 {
-                    if (ClientName.Length != 0)
+                    if (ClientName != null)
                     {
-                        return true;
+                        if (ClientName.Length != 0)
+                        {
+                            return true;
+                        }
+                        return false;
                     }
                     return false;
                 }
+                else if (IsConnected)
+                    return false;
                 return false;
             });
 
@@ -187,7 +203,6 @@ namespace WPF_ClientTcp.ViewModels
             {
                 if (TcpClient.Connected)
                 {
-
                     App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
                     {
                         var stream = TcpClient.GetStream();
@@ -204,7 +219,6 @@ namespace WPF_ClientTcp.ViewModels
                         MessagePanel.Children.Add(view);
                         ClientMessage = "";
                     });
-
 
 
                 }
